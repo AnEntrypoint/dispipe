@@ -81,7 +81,6 @@ async function joinDiscordVoice(client, guildId, channelId) {
 
   _destroyExisting(guildId)
 
-  // Send voice leave via gateway to clear any stale session on Discord's side
   console.log('[client] sending voice leave to clear stale session...')
   try {
     for (const shard of client.ws.shards.values()) {
@@ -90,7 +89,6 @@ async function joinDiscordVoice(client, guildId, channelId) {
   } catch (e) {
     console.log('[client] leave send error (non-fatal):', e.message)
   }
-  // Wait for Discord to confirm the leave via VoiceStateUpdate, with a timeout fallback
   await new Promise(r => {
     const botId = client.user?.id
     const onVoiceState = (oldState, newState) => {
