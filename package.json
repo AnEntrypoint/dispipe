@@ -1,5 +1,5 @@
 {
-  "name": "jeeves",
+  "name": "dispipe",
   "version": "1.0.0",
   "description": "Discord audio connector — voice channel join, Opus encode/decode, audio frame pipeline",
   "type": "module",
