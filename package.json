@@ -1,6 +1,6 @@
 {
   "name": "dispipe",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Discord audio connector — voice channel join, Opus encode/decode, audio frame pipeline",
   "type": "module",
   "main": "src/bot/client.js",
