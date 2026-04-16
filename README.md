@@ -1,4 +1,4 @@
-# Jeeves — Discord Audio Connector
+# dispipe — Discord Audio Connector
 
 Minimal Discord voice connectivity module set. Handles bot client instantiation, voice channel join/leave, and bi-directional audio PCM pipelines (encode Float32→Opus, decode Opus→Float32).
 
