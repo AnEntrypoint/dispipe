@@ -46,8 +46,7 @@ async function _tryJoin(channel, guild, attempt) {
         closeCode = code
         console.log('[client] voice WS closed, code:', code, 'reason:', reason?.toString?.() || '(none)')
       })
-      newState.networking.on('debug', (msg) => console.log('[net]', msg.slice(0,400)))
-      newState.networking.on('transitioned', (id) => console.log('[client] DAVE transitioned, id:', id))
+      newState.networking.on('error', (err) => console.log('[client] voice networking error:', err?.message || err))
     }
     const oldNet = oldState.networking?.state
     const newNet = newState.networking?.state

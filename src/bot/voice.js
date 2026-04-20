@@ -36,9 +36,7 @@ function initVoicePlayer(connection) {
 
   audioPlayer.on('error', (err) => console.error('[voice] player error:', err.message))
   audioPlayer.on('stateChange', (oldState, newState) => {
-    console.log(`[voice] player: ${oldState.status} -> ${newState.status}`)
     if (newState.status === AudioPlayerStatus.Idle && oldState.status !== AudioPlayerStatus.Idle) {
-      console.log('[voice] stream ended, restarting stream')
       const resource = _makeStream()
       audioPlayer.play(resource)
     }
@@ -71,10 +69,6 @@ function pushAudioFrame(f32Buffer) {
     pcmInput.write(_accumBuf.subarray(0, FRAME))
     _accumBuf = _accumBuf.subarray(FRAME)
     _pushCount++
-    if (_pushCount <= 5 || _pushCount % 500 === 0) {
-      let peak = 0; for (let i = 0; i < f32.length; i++) { const v = Math.abs(f32[i]); if (v > peak) peak = v }
-      console.log(`[voice] push #${_pushCount}, bytes=${FRAME}, peak=${peak.toFixed(4)}, player=${audioPlayer?.state?.status}`)
-    }
   }
 }
 
@@ -90,4 +84,11 @@ function stopAudio() {
   voiceConn = null
 }
 
-export { initVoicePlayer, pushAudioFrame, stopAudio }
+function flushAudio() {
+  if (!audioPlayer) return
+  _accumBuf = Buffer.alloc(0)
+  const resource = _makeStream()
+  audioPlayer.play(resource)
+}
+
+export { initVoicePlayer, pushAudioFrame, stopAudio, flushAudio }
