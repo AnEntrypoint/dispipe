@@ -1,0 +1,39 @@
+id: install
+title: Install
+template: install
+content:
+  heading: Install & Use
+  description: Install from npm, set three env vars, wire two functions.
+  install_cmd: npm install dispipe
+  env:
+    - name: DISCORD_BOT_TOKEN
+      desc: Official Discord bot token (discord.js v14 compatible).
+    - name: GUILD_ID
+      desc: Snowflake of the target guild.
+    - name: CHANNEL_ID
+      desc: Snowflake of the voice channel to join.
+  permissions: Bot must hold CONNECT and SPEAK permissions in the target channel.
+  example: |
+    import { createClient, joinDiscordVoice, subscribeToSpeaker } from 'dispipe/client'
+    import { initVoicePlayer, pushAudioFrame } from 'dispipe/voice'
+
+    const client = createClient()
+    await client.login(process.env.DISCORD_BOT_TOKEN)
+
+    const { voiceConnection } = await joinDiscordVoice(
+      client,
+      process.env.GUILD_ID,
+      process.env.CHANNEL_ID
+    )
+
+    initVoicePlayer(voiceConnection)
+
+    subscribeToSpeaker(userId, (uid, f32) => {
+      console.log('inbound', uid, f32.length)
+    })
+
+    pushAudioFrame(new Float32Array(960))
+  notes:
+    - Standalone — no Electron, no browser-only APIs. Works in headless bots, bridges, and Electron main.
+    - Frames must be exactly 960 samples (20ms @ 48kHz).
+    - Float32 clipping clamps at envelope; no amplitude overflow.

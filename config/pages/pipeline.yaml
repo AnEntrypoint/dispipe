@@ -1,0 +1,26 @@
+id: pipeline
+title: Pipeline
+template: pipeline
+content:
+  heading: Audio Pipeline
+  description: How frames move between your app and Discord — outbound encode and inbound decode.
+  outbound:
+    title: Outbound — App → Discord
+    steps:
+      - Float32 input at 48kHz stereo
+      - Clamp to [−1, 1]
+      - Convert to Int16 (scaled by ±32767/32768)
+      - Accumulate into 960-sample (20ms) frames
+      - Pipe to prism Opus encoder
+      - Feed Opus stream to AudioPlayer
+      - AudioPlayer publishes to Discord voice connection
+  inbound:
+    title: Inbound — Discord → App
+    steps:
+      - VoiceReceiver subscribes to user Opus stream
+      - prism Opus decoder → Int16 buffer
+      - Convert Int16 → Float32 (divide by 32768)
+      - Emit via callback at 48kHz stereo
+  recovery:
+    title: Connection Recovery
+    body: Listens for the Disconnected voice state and calls rejoin() immediately. Complements any host-app reconnect timer. Voice join sends an op-4 leave first to clear stale sessions before retry.
