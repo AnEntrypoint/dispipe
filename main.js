@@ -121,7 +121,7 @@ function render() {
     if (!ds || !ds.applyDiff) return;
     const root = document.getElementById('app');
     if (!root) return;
-    if (!root.classList.contains('app247420')) root.classList.add('app247420');
+    if (!root.classList.contains('ds-247420')) root.classList.add('ds-247420');
     ds.applyDiff(root, view());
 }
 
