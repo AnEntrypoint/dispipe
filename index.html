@@ -1,116 +1,41 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Minimal Discord voice connectivity module — voice channel join/leave, Opus encode/decode, Float32 PCM pipeline.">
-    <meta name="author" content="AnEntrypoint">
-    <meta name="keywords" content="discord, voice, audio, opus, pcm, bot">
-    <meta property="og:title" content="dispipe — Discord Audio Connector">
-    <meta property="og:description" content="Minimal Discord voice connectivity module — voice channel join/leave, Opus encode/decode, Float32 PCM pipeline.">
-    <meta property="og:url" content="https://anentrypoint.github.io/dispipe">
-    <link rel="canonical" href="https://anentrypoint.github.io/dispipe">
-    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='75' font-size='75'>🎙</text></svg>">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
-    <script src="https://unpkg.com/@tailwindcss/browser@4"></script>
-    <style type="text/tailwindcss">
-      @theme {
-        --font-family-sans: 'Inter', system-ui, sans-serif;
-        --font-family-mono: 'JetBrains Mono', ui-monospace, monospace;
-      }
-      html { scroll-behavior: smooth; }
-      body { font-family: 'Inter', system-ui, sans-serif; }
-    </style>
-    <title>dispipe — Discord Audio Connector</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>dispipe — discord audio connector</title>
+  <meta name="description" content="Minimal Discord voice connectivity module — voice channel join/leave, Opus encode/decode, Float32 PCM pipeline.">
+  <meta name="author" content="AnEntrypoint">
+  <meta name="keywords" content="discord, voice, audio, opus, pcm, bot, dispipe">
+  <meta property="og:title" content="dispipe — discord audio connector">
+  <meta property="og:description" content="Minimal Discord voice connectivity module — voice channel join/leave, Opus encode/decode, Float32 PCM pipeline.">
+  <meta property="og:url" content="https://anentrypoint.github.io/dispipe/">
+  <link rel="canonical" href="https://anentrypoint.github.io/dispipe/">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='75' font-size='75'>🎙</text></svg>">
+  <link rel="stylesheet" href="https://unpkg.com/anentrypoint-design/dist/247420.css">
+  <style>
+    body { margin:0; background: var(--paper, #0a0a0a); }
+    pre.code-block { background: var(--panel-2); border: 1px solid var(--panel-3); border-radius: 8px; padding: 16px 20px; overflow-x: auto; font-family: var(--ff-mono); font-size: 13px; line-height: 1.6; color: var(--panel-text); margin: 0; }
+    .feature-grid { display:grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; padding: 4px 16px 18px; }
+    .feature-tile { padding: 16px; border: 1px solid var(--panel-3); border-radius: 8px; background: var(--panel-2); }
+    .feature-tile .glyph { font-size: 22px; margin-bottom: 8px; display:block; color: var(--panel-accent); }
+    .feature-tile h4 { margin: 0 0 6px; font-size: 14px; color: var(--panel-text); }
+    .feature-tile p { margin: 0; font-size: 12px; line-height:1.55; color: var(--panel-text-2); }
+    .step-list { list-style: none; padding: 4px 16px 18px; margin: 0; counter-reset: step; }
+    .step-list li { counter-increment: step; padding: 6px 0 6px 36px; position: relative; font-size: 13px; color: var(--panel-text); line-height: 1.55; }
+    .step-list li::before { content: counter(step); position: absolute; left: 0; top: 4px; width: 26px; height: 26px; border-radius: 50%; background: var(--panel-accent); color: var(--paper); font-family: var(--ff-mono); font-size: 12px; font-weight: 700; display: flex; align-items: center; justify-content: center; }
+    .api-fn { padding: 12px 16px; border-top: 1px solid var(--panel-3); }
+    .api-fn:first-child { border-top: 0; }
+    .api-fn code { color: var(--panel-accent); font-family: var(--ff-mono); font-weight: 600; font-size: 13px; }
+    .api-fn p { margin: 4px 0 0; color: var(--panel-text-2); font-size: 13px; line-height: 1.55; }
+  </style>
 </head>
-<body class="bg-slate-50">
-    
-  <nav class="sticky top-0 z-50 bg-slate-900/95 backdrop-blur border-b border-indigo-500/20">
-    <div class="max-w-7xl mx-auto px-6">
-      <div class="flex items-center justify-between h-16">
-        <a href="./index.html" class="text-2xl font-bold text-white font-mono tracking-tight">
-          <span class="text-indigo-400">▶</span> dispipe
-        </a>
-        <div class="hidden md:flex space-x-1">
-          
-            <a href="./index.html" class="px-4 py-2 rounded-md text-slate-300 hover:text-white hover:bg-white/10 transition-colors font-medium text-sm">
-              Home
-            </a>
-          
-            <a href="./api.html" class="px-4 py-2 rounded-md text-slate-300 hover:text-white hover:bg-white/10 transition-colors font-medium text-sm">
-              API
-            </a>
-          
-            <a href="./pipeline.html" class="px-4 py-2 rounded-md text-slate-300 hover:text-white hover:bg-white/10 transition-colors font-medium text-sm">
-              Pipeline
-            </a>
-          
-            <a href="./install.html" class="px-4 py-2 rounded-md text-slate-300 hover:text-white hover:bg-white/10 transition-colors font-medium text-sm">
-              Install
-            </a>
-          
-          <a href="https://github.com/AnEntrypoint/dispipe" class="ml-2 px-4 py-2 rounded-md text-cyan-300 hover:text-white hover:bg-cyan-500/20 transition-colors font-medium text-sm">
-            GitHub
-          </a>
-        </div>
-      </div>
-    </div>
-  </nav>
-
-    
-    <section class="relative min-h-[80vh] flex items-center justify-center overflow-hidden bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900">
-      <div class="absolute inset-0 opacity-20" style="background-image: radial-gradient(circle at 20% 30%, #5865F2 0, transparent 40%), radial-gradient(circle at 80% 70%, #00d4ff 0, transparent 40%);"></div>
-      <div class="relative z-10 text-center px-4 max-w-4xl py-24">
-        <div class="inline-block mb-6 px-4 py-1 rounded-full bg-indigo-500/20 border border-indigo-400/30 text-indigo-300 font-mono text-sm">🎙 v1.0 · MIT</div>
-        <h1 class="text-7xl md:text-8xl font-bold text-white mb-4 tracking-tight font-mono">dispipe</h1>
-        <p class="text-xl md:text-2xl text-indigo-100 mb-3 max-w-2xl mx-auto">Discord voice channel connectivity & bi-directional Opus audio pipeline</p>
-        <p class="text-base text-cyan-300 mb-10 font-mono">Float32 PCM ⇄ Opus ⇄ Discord. Headless. Standalone.</p>
-        <div class="flex gap-4 justify-center flex-wrap">
-          <a href="./api.html" class="inline-block bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-3 px-8 rounded-lg transition-all shadow-lg shadow-indigo-500/30">View API</a>
-          <a href="./install.html" class="inline-block bg-white/10 hover:bg-white/20 backdrop-blur text-white font-bold py-3 px-8 rounded-lg transition-all border border-white/20">Install</a>
-          <a href="https://github.com/AnEntrypoint/dispipe" class="inline-block text-indigo-200 hover:text-white font-bold py-3 px-4 transition-all">GitHub →</a>
-        </div>
-      </div>
-    </section>
-    <section class="py-20 bg-slate-50">
-      <div class="max-w-6xl mx-auto px-6 grid grid-cols-1 md:grid-cols-3 gap-8">
-        <div class="bg-white p-8 rounded-xl shadow-sm border border-slate-100">
-          <div class="text-4xl mb-3">🔗</div>
-          <h3 class="font-bold text-xl mb-2 text-slate-900">Voice Join with Retry</h3>
-          <p class="text-slate-600">8-attempt loop with code-aware backoff. Op-4 leave clears stale sessions.</p>
-        </div>
-        <div class="bg-white p-8 rounded-xl shadow-sm border border-slate-100">
-          <div class="text-4xl mb-3">🔊</div>
-          <h3 class="font-bold text-xl mb-2 text-slate-900">Float32 ⇄ Opus</h3>
-          <p class="text-slate-600">Bi-directional 48kHz stereo PCM pipeline. 20ms frames via prism-media.</p>
-        </div>
-        <div class="bg-white p-8 rounded-xl shadow-sm border border-slate-100">
-          <div class="text-4xl mb-3">🪶</div>
-          <h3 class="font-bold text-xl mb-2 text-slate-900">Headless & Standalone</h3>
-          <p class="text-slate-600">No Electron requirement. Drops into bots, bridges, or Electron main.</p>
-        </div>
-      </div>
-    </section>
-  
-    
-  <footer class="bg-slate-950 text-slate-300 py-10 border-t border-indigo-500/20">
-    <div class="max-w-7xl mx-auto px-6">
-      <p class="text-slate-400 mb-4">© 2026 AnEntrypoint. dispipe — MIT licensed Discord audio connector.</p>
-      <div class="flex flex-wrap gap-5 text-slate-400 text-sm">
-        
-          <a href="https://github.com/AnEntrypoint/dispipe" target="_blank" rel="noopener noreferrer" class="hover:text-indigo-400 transition-colors font-medium">
-            GitHub
-          </a>
-         · 
-          <a href="https://www.npmjs.com/package/dispipe" target="_blank" rel="noopener noreferrer" class="hover:text-indigo-400 transition-colors font-medium">
-            npm
-          </a>
-        
-      </div>
-    </div>
-  </footer>
-
+<body>
+  <div id="app"></div>
+  <script type="module">
+    import * as ds from 'https://unpkg.com/anentrypoint-design/dist/247420.js';
+    window.ds = ds;
+  </script>
+  <script type="module" src="main.js"></script>
 </body>
 </html>
