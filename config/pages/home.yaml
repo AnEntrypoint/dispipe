@@ -1,8 +1,0 @@
-id: home
-title: Home
-template: hero
-content:
-  heading: dispipe
-  subheading: Discord voice channel connectivity & bi-directional Opus audio pipeline
-  cta_text: View API
-  tagline: "Float32 PCM ⇄ Opus ⇄ Discord. Headless. Standalone."

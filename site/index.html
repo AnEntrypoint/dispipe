@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>dispipe — discord audio connector</title>
+  <meta name="description" content="Minimal Discord voice connectivity module — voice channel join/leave, Opus encode/decode, Float32 PCM pipeline.">
+  <meta name="author" content="AnEntrypoint">
+  <meta name="keywords" content="discord, voice, audio, opus, pcm, bot, dispipe">
+  <meta property="og:title" content="dispipe — discord audio connector">
+  <meta property="og:description" content="Minimal Discord voice connectivity module — voice channel join/leave, Opus encode/decode, Float32 PCM pipeline.">
+  <meta property="og:url" content="https://anentrypoint.github.io/dispipe/">
+  <link rel="canonical" href="https://anentrypoint.github.io/dispipe/">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='75' font-size='75'>🎙</text></svg>">
+  <link rel="stylesheet" href="https://unpkg.com/anentrypoint-design/dist/247420.css">
+  <style>
+    body { margin:0; background: var(--paper, #0a0a0a); }
+    pre.code-block { background: var(--panel-2); border: 1px solid var(--panel-3); border-radius: 8px; padding: 16px 20px; overflow-x: auto; font-family: var(--ff-mono); font-size: 13px; line-height: 1.6; color: var(--panel-text); margin: 0; }
+    .feature-grid { display:grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; padding: 4px 16px 18px; }
+    .feature-tile { padding: 16px; border: 1px solid var(--panel-3); border-radius: 8px; background: var(--panel-2); }
+    .feature-tile .glyph { font-size: 22px; margin-bottom: 8px; display:block; color: var(--panel-accent); }
+    .feature-tile h4 { margin: 0 0 6px; font-size: 14px; color: var(--panel-text); }
+    .feature-tile p { margin: 0; font-size: 12px; line-height:1.55; color: var(--panel-text-2); }
+    .step-list { list-style: none; padding: 4px 16px 18px; margin: 0; counter-reset: step; }
+    .step-list li { counter-increment: step; padding: 6px 0 6px 36px; position: relative; font-size: 13px; color: var(--panel-text); line-height: 1.55; }
+    .step-list li::before { content: counter(step); position: absolute; left: 0; top: 4px; width: 26px; height: 26px; border-radius: 50%; background: var(--panel-accent); color: var(--paper); font-family: var(--ff-mono); font-size: 12px; font-weight: 700; display: flex; align-items: center; justify-content: center; }
+    .api-fn { padding: 12px 16px; border-top: 1px solid var(--panel-3); }
+    .api-fn:first-child { border-top: 0; }
+    .api-fn code { color: var(--panel-accent); font-family: var(--ff-mono); font-weight: 600; font-size: 13px; }
+    .api-fn p { margin: 4px 0 0; color: var(--panel-text-2); font-size: 13px; line-height: 1.55; }
+  </style>
+</head>
+<body>
+  <div id="app"></div>
+  <script type="module">
+    import * as ds from 'https://unpkg.com/anentrypoint-design/dist/247420.js';
+    window.ds = ds;
+  </script>
+  <script type="module" src="main.js"></script>
+</body>
+</html>
