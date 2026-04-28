@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Minimal Discord voice connectivity module — voice channel join/leave, Opus encode/decode, Float32 PCM pipeline.">
+    <meta name="author" content="AnEntrypoint">
+    <meta name="keywords" content="discord, voice, audio, opus, pcm, bot">
+    <meta property="og:title" content="Install · dispipe">
+    <meta property="og:description" content="Minimal Discord voice connectivity module — voice channel join/leave, Opus encode/decode, Float32 PCM pipeline.">
+    <meta property="og:url" content="https://anentrypoint.github.io/dispipe/install.html">
+    <link rel="canonical" href="https://anentrypoint.github.io/dispipe/install.html">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='75' font-size='75'>🎙</text></svg>">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/@tailwindcss/browser@4"></script>
+    <style type="text/tailwindcss">
+      @theme {
+        --font-family-sans: 'Inter', system-ui, sans-serif;
+        --font-family-mono: 'JetBrains Mono', ui-monospace, monospace;
+      }
+      html { scroll-behavior: smooth; }
+      body { font-family: 'Inter', system-ui, sans-serif; }
+    </style>
+    <title>Install · dispipe</title>
+</head>
+<body class="bg-slate-50">
+    
+  <nav class="sticky top-0 z-50 bg-slate-900/95 backdrop-blur border-b border-indigo-500/20">
+    <div class="max-w-7xl mx-auto px-6">
+      <div class="flex items-center justify-between h-16">
+        <a href="./index.html" class="text-2xl font-bold text-white font-mono tracking-tight">
+          <span class="text-indigo-400">▶</span> dispipe
+        </a>
+        <div class="hidden md:flex space-x-1">
+          
+            <a href="./index.html" class="px-4 py-2 rounded-md text-slate-300 hover:text-white hover:bg-white/10 transition-colors font-medium text-sm">
+              Home
+            </a>
+          
+            <a href="./api.html" class="px-4 py-2 rounded-md text-slate-300 hover:text-white hover:bg-white/10 transition-colors font-medium text-sm">
+              API
+            </a>
+          
+            <a href="./pipeline.html" class="px-4 py-2 rounded-md text-slate-300 hover:text-white hover:bg-white/10 transition-colors font-medium text-sm">
+              Pipeline
+            </a>
+          
+            <a href="./install.html" class="px-4 py-2 rounded-md text-slate-300 hover:text-white hover:bg-white/10 transition-colors font-medium text-sm">
+              Install
+            </a>
+          
+          <a href="https://github.com/AnEntrypoint/dispipe" class="ml-2 px-4 py-2 rounded-md text-cyan-300 hover:text-white hover:bg-cyan-500/20 transition-colors font-medium text-sm">
+            GitHub
+          </a>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+    
+    <section class="py-20 bg-slate-50 min-h-[80vh]">
+      <div class="max-w-4xl mx-auto px-6">
+        <div class="mb-10">
+          <h2 class="text-5xl font-bold text-slate-900 mb-3 font-mono">Install & Use</h2>
+          <p class="text-lg text-slate-600">Install from npm, set three env vars, wire two functions.</p>
+        </div>
+        <div class="bg-slate-900 rounded-xl p-6 mb-8 font-mono">
+          <div class="text-slate-500 text-xs mb-2">$ install</div>
+          <code class="text-cyan-300 text-lg">npm install dispipe</code>
+        </div>
+        <h3 class="text-2xl font-bold text-slate-900 mb-3 mt-10">Environment</h3>
+        <div class="bg-white rounded-xl border border-slate-200 divide-y divide-slate-100 mb-3">
+          
+            <div class="px-5 py-4">
+              <code class="font-mono font-bold text-indigo-700">DISCORD_BOT_TOKEN</code>
+              <p class="text-slate-600 text-sm mt-1">Official Discord bot token (discord.js v14 compatible).</p>
+            </div>
+          
+            <div class="px-5 py-4">
+              <code class="font-mono font-bold text-indigo-700">GUILD_ID</code>
+              <p class="text-slate-600 text-sm mt-1">Snowflake of the target guild.</p>
+            </div>
+          
+            <div class="px-5 py-4">
+              <code class="font-mono font-bold text-indigo-700">CHANNEL_ID</code>
+              <p class="text-slate-600 text-sm mt-1">Snowflake of the voice channel to join.</p>
+            </div>
+          
+        </div>
+        <p class="text-sm text-slate-500 italic mb-10">Bot must hold CONNECT and SPEAK permissions in the target channel.</p>
+        <h3 class="text-2xl font-bold text-slate-900 mb-3">Example</h3>
+        <pre class="bg-slate-900 text-slate-100 rounded-xl p-6 overflow-x-auto text-sm font-mono leading-relaxed mb-10"><code>import { createClient, joinDiscordVoice, subscribeToSpeaker } from 'dispipe/client'
+import { initVoicePlayer, pushAudioFrame } from 'dispipe/voice'
+
+const client = createClient()
+await client.login(process.env.DISCORD_BOT_TOKEN)
+
+const { voiceConnection } = await joinDiscordVoice(
+  client,
+  process.env.GUILD_ID,
+  process.env.CHANNEL_ID
+)
+
+initVoicePlayer(voiceConnection)
+
+subscribeToSpeaker(userId, (uid, f32) => {
+  console.log('inbound', uid, f32.length)
+})
+
+pushAudioFrame(new Float32Array(960))
+</code></pre>
+        <h3 class="text-2xl font-bold text-slate-900 mb-3">Notes</h3>
+        <ul class="space-y-2">
+          
+            <li class="flex gap-3 items-start">
+              <span class="flex-none text-indigo-500">▸</span>
+              <span class="text-slate-700">Standalone — no Electron, no browser-only APIs. Works in headless bots, bridges, and Electron main.</span>
+            </li>
+          
+            <li class="flex gap-3 items-start">
+              <span class="flex-none text-indigo-500">▸</span>
+              <span class="text-slate-700">Frames must be exactly 960 samples (20ms @ 48kHz).</span>
+            </li>
+          
+            <li class="flex gap-3 items-start">
+              <span class="flex-none text-indigo-500">▸</span>
+              <span class="text-slate-700">Float32 clipping clamps at envelope; no amplitude overflow.</span>
+            </li>
+          
+        </ul>
+      </div>
+    </section>
+  
+    
+  <footer class="bg-slate-950 text-slate-300 py-10 border-t border-indigo-500/20">
+    <div class="max-w-7xl mx-auto px-6">
+      <p class="text-slate-400 mb-4">© 2026 AnEntrypoint. dispipe — MIT licensed Discord audio connector.</p>
+      <div class="flex flex-wrap gap-5 text-slate-400 text-sm">
+        
+          <a href="https://github.com/AnEntrypoint/dispipe" target="_blank" rel="noopener noreferrer" class="hover:text-indigo-400 transition-colors font-medium">
+            GitHub
+          </a>
+         · 
+          <a href="https://www.npmjs.com/package/dispipe" target="_blank" rel="noopener noreferrer" class="hover:text-indigo-400 transition-colors font-medium">
+            npm
+          </a>
+        
+      </div>
+    </div>
+  </footer>
+
+</body>
+</html>

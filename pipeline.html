@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Minimal Discord voice connectivity module — voice channel join/leave, Opus encode/decode, Float32 PCM pipeline.">
+    <meta name="author" content="AnEntrypoint">
+    <meta name="keywords" content="discord, voice, audio, opus, pcm, bot">
+    <meta property="og:title" content="Pipeline · dispipe">
+    <meta property="og:description" content="Minimal Discord voice connectivity module — voice channel join/leave, Opus encode/decode, Float32 PCM pipeline.">
+    <meta property="og:url" content="https://anentrypoint.github.io/dispipe/pipeline.html">
+    <link rel="canonical" href="https://anentrypoint.github.io/dispipe/pipeline.html">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='75' font-size='75'>🎙</text></svg>">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/@tailwindcss/browser@4"></script>
+    <style type="text/tailwindcss">
+      @theme {
+        --font-family-sans: 'Inter', system-ui, sans-serif;
+        --font-family-mono: 'JetBrains Mono', ui-monospace, monospace;
+      }
+      html { scroll-behavior: smooth; }
+      body { font-family: 'Inter', system-ui, sans-serif; }
+    </style>
+    <title>Pipeline · dispipe</title>
+</head>
+<body class="bg-slate-50">
+    
+  <nav class="sticky top-0 z-50 bg-slate-900/95 backdrop-blur border-b border-indigo-500/20">
+    <div class="max-w-7xl mx-auto px-6">
+      <div class="flex items-center justify-between h-16">
+        <a href="./index.html" class="text-2xl font-bold text-white font-mono tracking-tight">
+          <span class="text-indigo-400">▶</span> dispipe
+        </a>
+        <div class="hidden md:flex space-x-1">
+          
+            <a href="./index.html" class="px-4 py-2 rounded-md text-slate-300 hover:text-white hover:bg-white/10 transition-colors font-medium text-sm">
+              Home
+            </a>
+          
+            <a href="./api.html" class="px-4 py-2 rounded-md text-slate-300 hover:text-white hover:bg-white/10 transition-colors font-medium text-sm">
+              API
+            </a>
+          
+            <a href="./pipeline.html" class="px-4 py-2 rounded-md text-slate-300 hover:text-white hover:bg-white/10 transition-colors font-medium text-sm">
+              Pipeline
+            </a>
+          
+            <a href="./install.html" class="px-4 py-2 rounded-md text-slate-300 hover:text-white hover:bg-white/10 transition-colors font-medium text-sm">
+              Install
+            </a>
+          
+          <a href="https://github.com/AnEntrypoint/dispipe" class="ml-2 px-4 py-2 rounded-md text-cyan-300 hover:text-white hover:bg-cyan-500/20 transition-colors font-medium text-sm">
+            GitHub
+          </a>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+    
+    <section class="py-20 bg-slate-50 min-h-[80vh]">
+      <div class="max-w-5xl mx-auto px-6">
+        <div class="mb-12">
+          <h2 class="text-5xl font-bold text-slate-900 mb-3 font-mono">Audio Pipeline</h2>
+          <p class="text-lg text-slate-600">How frames move between your app and Discord — outbound encode and inbound decode.</p>
+        </div>
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+          <div class="bg-white rounded-xl border border-slate-200 p-6">
+            <div class="flex items-center gap-2 mb-4">
+              <span class="text-xl">⬆</span>
+              <h3 class="text-xl font-bold text-slate-900">Outbound — App → Discord</h3>
+            </div>
+            <ol class="space-y-2">
+              
+                <li class="flex gap-3 items-start">
+                  <span class="flex-none w-7 h-7 rounded-full bg-indigo-600 text-white text-sm font-mono font-bold flex items-center justify-center">1</span>
+                  <span class="text-slate-700 pt-0.5">Float32 input at 48kHz stereo</span>
+                </li>
+              
+                <li class="flex gap-3 items-start">
+                  <span class="flex-none w-7 h-7 rounded-full bg-indigo-600 text-white text-sm font-mono font-bold flex items-center justify-center">2</span>
+                  <span class="text-slate-700 pt-0.5">Clamp to [−1, 1]</span>
+                </li>
+              
+                <li class="flex gap-3 items-start">
+                  <span class="flex-none w-7 h-7 rounded-full bg-indigo-600 text-white text-sm font-mono font-bold flex items-center justify-center">3</span>
+                  <span class="text-slate-700 pt-0.5">Convert to Int16 (scaled by ±32767/32768)</span>
+                </li>
+              
+                <li class="flex gap-3 items-start">
+                  <span class="flex-none w-7 h-7 rounded-full bg-indigo-600 text-white text-sm font-mono font-bold flex items-center justify-center">4</span>
+                  <span class="text-slate-700 pt-0.5">Accumulate into 960-sample (20ms) frames</span>
+                </li>
+              
+                <li class="flex gap-3 items-start">
+                  <span class="flex-none w-7 h-7 rounded-full bg-indigo-600 text-white text-sm font-mono font-bold flex items-center justify-center">5</span>
+                  <span class="text-slate-700 pt-0.5">Pipe to prism Opus encoder</span>
+                </li>
+              
+                <li class="flex gap-3 items-start">
+                  <span class="flex-none w-7 h-7 rounded-full bg-indigo-600 text-white text-sm font-mono font-bold flex items-center justify-center">6</span>
+                  <span class="text-slate-700 pt-0.5">Feed Opus stream to AudioPlayer</span>
+                </li>
+              
+                <li class="flex gap-3 items-start">
+                  <span class="flex-none w-7 h-7 rounded-full bg-indigo-600 text-white text-sm font-mono font-bold flex items-center justify-center">7</span>
+                  <span class="text-slate-700 pt-0.5">AudioPlayer publishes to Discord voice connection</span>
+                </li>
+              
+            </ol>
+          </div>
+          <div class="bg-white rounded-xl border border-slate-200 p-6">
+            <div class="flex items-center gap-2 mb-4">
+              <span class="text-xl">⬇</span>
+              <h3 class="text-xl font-bold text-slate-900">Inbound — Discord → App</h3>
+            </div>
+            <ol class="space-y-2">
+              
+                <li class="flex gap-3 items-start">
+                  <span class="flex-none w-7 h-7 rounded-full bg-cyan-600 text-white text-sm font-mono font-bold flex items-center justify-center">1</span>
+                  <span class="text-slate-700 pt-0.5">VoiceReceiver subscribes to user Opus stream</span>
+                </li>
+              
+                <li class="flex gap-3 items-start">
+                  <span class="flex-none w-7 h-7 rounded-full bg-cyan-600 text-white text-sm font-mono font-bold flex items-center justify-center">2</span>
+                  <span class="text-slate-700 pt-0.5">prism Opus decoder → Int16 buffer</span>
+                </li>
+              
+                <li class="flex gap-3 items-start">
+                  <span class="flex-none w-7 h-7 rounded-full bg-cyan-600 text-white text-sm font-mono font-bold flex items-center justify-center">3</span>
+                  <span class="text-slate-700 pt-0.5">Convert Int16 → Float32 (divide by 32768)</span>
+                </li>
+              
+                <li class="flex gap-3 items-start">
+                  <span class="flex-none w-7 h-7 rounded-full bg-cyan-600 text-white text-sm font-mono font-bold flex items-center justify-center">4</span>
+                  <span class="text-slate-700 pt-0.5">Emit via callback at 48kHz stereo</span>
+                </li>
+              
+            </ol>
+          </div>
+        </div>
+        <div class="bg-gradient-to-br from-slate-900 to-indigo-950 text-white rounded-xl p-6 border border-indigo-500/30">
+          <h3 class="text-xl font-bold mb-2 text-cyan-300">Connection Recovery</h3>
+          <p class="text-slate-200 leading-relaxed">Listens for the Disconnected voice state and calls rejoin() immediately. Complements any host-app reconnect timer. Voice join sends an op-4 leave first to clear stale sessions before retry.</p>
+        </div>
+      </div>
+    </section>
+  
+    
+  <footer class="bg-slate-950 text-slate-300 py-10 border-t border-indigo-500/20">
+    <div class="max-w-7xl mx-auto px-6">
+      <p class="text-slate-400 mb-4">© 2026 AnEntrypoint. dispipe — MIT licensed Discord audio connector.</p>
+      <div class="flex flex-wrap gap-5 text-slate-400 text-sm">
+        
+          <a href="https://github.com/AnEntrypoint/dispipe" target="_blank" rel="noopener noreferrer" class="hover:text-indigo-400 transition-colors font-medium">
+            GitHub
+          </a>
+         · 
+          <a href="https://www.npmjs.com/package/dispipe" target="_blank" rel="noopener noreferrer" class="hover:text-indigo-400 transition-colors font-medium">
+            npm
+          </a>
+        
+      </div>
+    </div>
+  </footer>
+
+</body>
+</html>
