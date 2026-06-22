@@ -17,12 +17,24 @@ const SILENCE = Buffer.alloc(FRAME)
 let frameQueue = []
 let _carry = Buffer.alloc(0)       // leftover < one frame between pushes
 let _pump = null
+// Underrun/gap telemetry: a silence run that ends with real audio = the queue
+// drained mid-reply (an audible skip). Exposed via getGapStats() to locate skips.
+const _gapStats = { gaps: 0, maxGapMs: 0, totalGapMs: 0, silenceRun: 0, hadAudio: false }
+export function getGapStats() { return { gaps: _gapStats.gaps, maxGapMs: _gapStats.maxGapMs, totalGapMs: _gapStats.totalGapMs } }
 const MAX_QUEUE = 60 * 50          // ~60s safety cap (drop oldest beyond this)
 
 function _makeStream() {
   if (pcmInput) { try { pcmInput.destroy() } catch {} }
   pcmInput = new PassThrough({ highWaterMark: FRAME * 400 })
   const encoder = new prism.opus.Encoder({ rate: 48000, channels: 2, frameSize: 960 })
+  // Netcode resilience: inband FEC + a packet-loss expectation let Discord/listeners
+  // conceal dropped UDP packets (fewer audible network skips); a solid bitrate keeps
+  // voice clean. Guarded -- not every opus backend exposes the CTL setters.
+  try {
+    encoder.setBitrate?.(Number(process.env.VOICE_OPUS_BITRATE || 96000))
+    encoder.setFEC?.(true)
+    encoder.setPLP?.(Number(process.env.VOICE_OPUS_PLP || 0.15))
+  } catch (e) { console.warn('[voice] opus tuning skipped:', e?.message) }
   pcmInput.pipe(encoder)
   return createAudioResource(encoder, { inputType: StreamType.Opus })
 }
@@ -44,7 +56,20 @@ function _startPump() {
     const target = Math.floor((Date.now() - _pumpStart + LOOKAHEAD_MS) / 20)
     let n = Math.min(target - _writtenFrames, 100) // burst cap per tick
     while (n-- > 0) {
-      const frame = frameQueue.length ? frameQueue.shift() : SILENCE
+      let frame
+      if (frameQueue.length) {
+        if (_gapStats.silenceRun > 2 && _gapStats.hadAudio) {
+          const ms = _gapStats.silenceRun * 20
+          _gapStats.gaps++; _gapStats.totalGapMs += ms
+          if (ms > _gapStats.maxGapMs) _gapStats.maxGapMs = ms
+          if (ms > 60) console.log(`[voice] GAP ${ms}ms (queue underrun mid-reply)`)
+        }
+        _gapStats.silenceRun = 0; _gapStats.hadAudio = true
+        frame = frameQueue.shift()
+      } else {
+        _gapStats.silenceRun++
+        frame = SILENCE
+      }
       try { pcmInput.write(frame) } catch {}
       _writtenFrames++
     }
