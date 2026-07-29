@@ -1,8 +1,8 @@
 node_modules/
-.env
 .DS_Store
 *.log
 .gm-stop-verified
 dist/
 .codeinsight
 .plugkit-browser-profile/
+config.bat
